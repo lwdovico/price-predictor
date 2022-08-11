@@ -9,7 +9,7 @@ setup(
   author = 'Ludovico Lemmma', 
   author_email = 'lwdovico@protonmail.com',
   url = 'https://github.com/ludovicolemma/price-predictor',
-  download_url = 'https://github.com/ludovicolemma/price-predictor/archive/v_01.tar.gz',
+  download_url = 'https://github.com/ludovicolemma/price-predictor/archive/refs/tags/v1.0.0.tar.gz',
   keywords = ['LSTM',
               'Machine Learning',
               'Market Price Prediction', 
