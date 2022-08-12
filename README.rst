@@ -30,7 +30,7 @@ Wait for the dependencies to be installed, tensorflow may need a few
 minutes.
 
 Command-line usage
------
+------------------
 
 Write the following command from your shell:
 
@@ -45,7 +45,7 @@ Write the following command from your shell:
 - The **epochs** are the number of of epochs the neural network will train, the default is 10 but it can be raised
 
 Documentation
------
+-------------
 
 Importing the library
 
