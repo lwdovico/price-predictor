@@ -49,6 +49,14 @@ The following parameters are optional:
 
 NB: Currently the training is set to be performed on 30 time_stamps, thus having close or fewer days than 30 may cause some unexpected errors
 
+**Usage example:**
+
+.. code:: sh
+
+   price_predictor EURUSD=X -d 2021-09-01 -r 0.9 -l 2 -e 15
+
+Meaning: Return tomorrow's EUR/USD opening price after training on data from the 1st of September 2021, with 90% of those data dedicated to training, the LSTM RNN will have 2 layers and the epochs of training will be 15
+
 Documentation
 -------------
 
@@ -198,8 +206,6 @@ Notes
 It is better to use this tool with financial instruments without a history of substantial price changes, indeed if the price was too high or too low in the past compared to the latest records, the model learnt may be biased towards different levels of prices, it may follow the trend but the amplitude may be completely wrong. 
 
 A possible solution to this problem is changing the starting date from which to gather data, so that the model may not be biased towards past averaage prices, or to increase the training to test split ratio (use with care!).
-
-It is also possible some tensorflow warnings may be given using the command-line with some OS without correct GPU drivers
 
 Disclaimer
 ----------
