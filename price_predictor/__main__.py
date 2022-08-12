@@ -29,7 +29,7 @@ def main():
         raise Exception('A symbol is needed to get a prediction')
 
     #I just need the prediction, no need of the model in the command line, thus [1]
-    quick_tomorrow(code = args.symbol[0], plot  = True,
+    quick_tomorrow(code = args.symbol[0], plot  = False,
                    start_from_date = args.date,
                    training_to_test_ratio = args.ratio, 
                    n_layers = args.layers,
