@@ -25,7 +25,7 @@ setup(
   version = actual_version,
   license='MIT',
   description = 'Quickly predict the future prices of financial instruments with a customizable LSTM Recurrent Neural Network',
-  long_description = open(os.path.join(abs_path, 'README.md')).read(),
+  long_description = open(os.path.join(abs_path, 'README.rst')).read(),
   author = 'Ludovico Lemma', 
   author_email = 'lwdovico@protonmail.com',
   url = 'https://github.com/ludovicolemma/price-predictor',
