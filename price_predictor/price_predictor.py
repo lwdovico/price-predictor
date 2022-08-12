@@ -253,7 +253,7 @@ class Price_Predictor():
         if input_sequence is None:
             if return_info:
                 print('\nWARNING: No input sequence provided, the records of the data downloaded will be used instead.\n')
-            input_sequence = self.df.iloc[self.split_val:]['Open'].values
+            input_sequence = self.df['Open'].values
         input_sequence = np.array(input_sequence).ravel().astype('float32')
         
         if len(input_sequence) > self.time_stamps:
