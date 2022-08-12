@@ -26,13 +26,14 @@ def main():
 
     if args.symbol == []:
         parser.print_help()
-
-    #I just need the prediction, no need of the model in the command line, thus [1]
-    quick_tomorrow(code = args.symbol[0], plot  = False,
-                   start_from_date = args.date,
-                   training_to_test_ratio = args.ratio, 
-                   n_layers = args.layers,
-                   n_epochs = args.epochs)[1]
+    
+    else:
+        #I just need the prediction, no need of the model in the command line, thus [1]
+        quick_tomorrow(code = args.symbol[0], plot  = False,
+                       start_from_date = args.date,
+                       training_to_test_ratio = args.ratio, 
+                       n_layers = args.layers,
+                       n_epochs = args.epochs)[1]
 
 if __name__ == '__main__':
     main()
