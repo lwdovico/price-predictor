@@ -64,7 +64,7 @@ def quick_tomorrow(code : str,
                                      training_to_test_ratio = training_to_test_ratio, 
                                      n_layers = n_layers,
                                      n_epochs = n_epochs, 
-                                     fit_at_start = True)
+                                     fit_at_start = True, verbose = 1)
 
       if plot == True:
           fig, ax = plt.subplots(1, 2, figsize=(18,5))
