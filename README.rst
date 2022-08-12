@@ -39,10 +39,15 @@ Write the following command from your shell:
     price_predictor [symbol] [--date (str)] [--ratio (float)] [--layers (int)] [--epochs (int)]
 
 - The **symbol** is just a short code of the financial instrument that must be available on yahoo finance
+
+The following parameters are optional:
+
 - The **date** must be provided in the ISO format, for example: 2015-01-25
 - The **ratio** is the percentage used to divide training and test set, the higher the closest to the current trends the prediction will turn out, but it may overfit (just ignore if not know how to use)
 - The **layers** are the number of layers of the LSTM, the minimum number possible will be always 2, the dafault is 4
 - The **epochs** are the number of of epochs the neural network will train, the default is 10 but it can be raised
+
+NB: Currently the training is set to be performed on 30 time_stamps, thus having close or fewer days than 30 may cause some unexpected errors
 
 Documentation
 -------------
@@ -125,6 +130,7 @@ Output:
 - input_sequence = None it will use the data downloaded, instead if an array or list is specified at least as long as the time_stamps required by the model, the prediction will be based upon that price sequence
 
 Besideds the original parameters it is also possible to access the following relevant attributes of the class in the subsequent way:
+
 - the dataframe used
 - the Min Max scaler used
 - the training to test split value of the dataframe
