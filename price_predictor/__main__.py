@@ -23,10 +23,9 @@ def main():
     tomorrow.add_argument('-e', '--epochs', type=int, help='Specify the number of epochs of the neural network', metavar = '')
 
     args = parser.parse_args()
-    print(args.symbol, args.date, args.ratio, args.layers, args.epochs)
 
     if args.symbol == []:
-        raise Exception('A symbol is needed to get a prediction')
+        parser.print_help()
 
     #I just need the prediction, no need of the model in the command line, thus [1]
     quick_tomorrow(code = args.symbol[0], plot  = False,
