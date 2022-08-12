@@ -3,10 +3,10 @@ from distutils.core import setup
 setup(
   name = 'price_predictor',
   packages = ['price_predictor'],
-  version = '1.0.0',
+  version = '1.0.1',
   license='MIT',
   description = 'Quickly predict the future prices of financial instruments with a customizable LSTM Recurrent Neural Network',
-  author = 'Ludovico Lemmma', 
+  author = 'Ludovico Lemma', 
   author_email = 'lwdovico@protonmail.com',
   url = 'https://github.com/ludovicolemma/price-predictor',
   download_url = 'https://github.com/ludovicolemma/price-predictor/archive/refs/tags/v1.0.1.tar.gz',
