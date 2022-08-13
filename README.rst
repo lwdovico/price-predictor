@@ -70,7 +70,7 @@ Importing the library
 
    from price_predictor import price_predictor as pp
 
-Then you can use the same function (quick_tomorrow)as in the command line and a few more
+Then you can use the same function (quick_tomorrow) as in the command line and a few more
 tools
 
 You can use 2 functions to query and temporarily store the csv and another
