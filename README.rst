@@ -78,21 +78,22 @@ one which is used for the command line to get quick results:
 
 .. code:: sh
 
-   pp.yahoo_finance_csv(code, start_from_date = '2010-07-01', end_to_date = today(), interval = 'd')
+   pp.yahoo_finance_csv(code, start_from_date = '2010-07-01', end_to_date = '2022-08-15', interval = 'd')
    
    pp.quick_tomorrow(code, plot = True, start_from_date, target_value, time_stamps, training_to_test_ratio, n_layers, n_epochs)
   
-- end_to_date is the date where there must stop the download of data
+- end_to_date is the date where there must stop the download of data, iso format required, the date indicated is an example but the default is the last available date
 - interval can be 'd' for day, 'wk' for weeks and 'mo' for months
    
 Then there are two classes you can work with, the basic one is:
 
 .. code:: sh
 
-   model = pp.Price_Predictor(code, start_from_date = '2010-07-01', end_to_date = today(), interval = 'd', time_stamps = 30,
+   model = pp.Price_Predictor(code, start_from_date = '2010-07-01', end_to_date = '2022-08-15', interval = 'd', time_stamps = 30,
                               target_value = 'Open', training_to_test_ratio = 0.7, n_layers = 4, n_epochs = 15, verbose = 0, 
                               load_model = False, path_load = 'model_saved', fit_at_start = False, days_forward = 1)
    
+- end_to_date iso format required, the date indicated is an example but the default is the last available date
 - verbose is 0 if you do not want any training info output, 1 if you want the progress bar, 2 if you want the description of each training epoch
 - load model will load the model stored in the cwd with name = path_load
 - fit_at_start is used to avoid manually transforming the data and fitting the model with the method .fit_and_test()
@@ -175,11 +176,12 @@ As of now the .save_model() method won't store neither the csv nor the scaled da
 
 .. code:: sh
 
-   Predict_Iterator(code, start_from_date = '2010-07-01', end_to_date = today(), 
+   Predict_Iterator(code, start_from_date = '2010-07-01', end_to_date = '2022-08-13', 
                     effort = 0.5, time_stamps = 30)
                     
 The parameter effort is used to manage the computational time, it is best left untouched, it's a coefficient used to concurrently increase or reduce the parameters:
 
+- end_to_date iso format required, the date indicated is an example but the default is the last available date
 - training_to_test_ratio: from 0.70 to 0.90
 - n_layers: from 2 to 4 with a stronger preference towards 2 layers: max(2, 4*effort)
 - n_epochs: 2 if effort less than 0.6, 4 if less than 0.75, 10 if less than 0.85 and 15 if greater
