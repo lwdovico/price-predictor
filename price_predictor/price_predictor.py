@@ -48,12 +48,18 @@ def yahoo_finance_csv(code : str,
 def quick_tomorrow(code : str, 
                    plot : bool = True,
                    start_from_date : Optional[str] = None,
+                   target_value : Optional[str] = None,
+                   time_stamps : Optional[int] = None,
                    training_to_test_ratio : Optional[float] = None, 
                    n_layers : Optional[int] = None,
                    n_epochs : Optional[int] = None) -> tuple:
 
       if start_from_date is None:
           start_from_date = '2010-07-01'
+      if target_value is None:
+          target_value = 'Open'
+      if time_stamps is None:
+          time_stamps = 30
       if training_to_test_ratio is None:
           training_to_test_ratio = 0.9
       if n_layers is None:
@@ -62,6 +68,7 @@ def quick_tomorrow(code : str,
           n_epochs = 10
 
       fitted_model = Price_Predictor(code = code, start_from_date = start_from_date,
+                                     time_stamps = time_stamps, target_value = target_value,
                                      training_to_test_ratio = training_to_test_ratio, 
                                      n_layers = n_layers,
                                      n_epochs = n_epochs, 
@@ -76,7 +83,7 @@ def quick_tomorrow(code : str,
 
       tomorrows_value = fitted_model.predict(return_info = False)
 
-      print("Last price was {price:.2f} on {date}".format(price = fitted_model.df['Open'].values[-1],
+      print("Last price was {price:.2f} on {date}".format(price = fitted_model.df[fitted_model.target_value].values[-1],
                                                           date = fitted_model.df['Date'].values[-1]),
             "Next price is predicted to be {:2f}".format(tomorrows_value), sep='\n')
       
@@ -90,6 +97,7 @@ class Price_Predictor():
                  interval : str = 'd',
                  time_stamps : int = 30, 
                  training_to_test_ratio : float = 0.7, 
+                 target_value : str = 'Open',
                  n_layers : int = 4, #minimum input is 2
                  n_epochs : int = 15,
                  verbose : int = 0,
@@ -104,6 +112,11 @@ class Price_Predictor():
         self.interval = interval
         self.time_stamps = time_stamps
         self.training_to_test_ratio = training_to_test_ratio
+        
+        if target_value not in ['Open', 'High', 'Low', 'Close', 'Adj Close', 'Volume']:
+            target_value = 'Open'
+            
+        self.target_value = target_value
         self.n_layers = max(2, n_layers) #it's useless if less than 2
         self.n_epochs = n_epochs
         self.verbose = 0 if verbose < 0 else 2 if verbose > 2 else verbose
@@ -114,6 +127,11 @@ class Price_Predictor():
         self.df = pd.read_csv(yahoo_finance_csv(code = code, 
                                                 start_from_date = self.start_from_date,
                                                 end_to_date = self.end_to_date))
+        
+        if self.target_value == 'Volume' and self.df['Volume'].sum() == 0:
+            print('Volume data is not available')
+            self.target_value = 'Open'
+            
         self.df = self.df.dropna().reset_index(drop=True)
 
         #set the scaler
@@ -161,7 +179,7 @@ class Price_Predictor():
         
         return model
 
-    def fit_and_test(self, days_forward : int,
+    def fit_and_test(self, days_forward : int = 1,
                     df : Optional[pd.DataFrame] = None, 
                     split_val : Optional[int] = None) -> np.array: #this method is not meant to be run by the user
         
@@ -175,7 +193,7 @@ class Price_Predictor():
         training_set = df.iloc[:split_val-1]
         test_set = df.iloc[split_val:]
 
-        X_train_scaled = self.scale.fit_transform(training_set['Open'].values.reshape(-1,1))
+        X_train_scaled = self.scale.fit_transform(training_set[self.target_value].values.reshape(-1,1))
 
         X_train = []
         y_train = []
@@ -191,7 +209,7 @@ class Price_Predictor():
             self.model.fit(X_train, y_train, epochs = self.n_epochs, batch_size = 32, verbose = self.verbose)
 
         #getting the test set in the same format of the training (meaning a sequence composed of n° of time_stamps)
-        to_test = pd.concat((training_set[-self.time_stamps:], test_set))['Open'].values
+        to_test = pd.concat((training_set[-self.time_stamps:], test_set))[self.target_value].values
         to_test = to_test.reshape(-1,1)
         to_test = self.scale.transform(to_test)
 
@@ -228,12 +246,12 @@ class Price_Predictor():
     def plot_data(self, ax = None):
         if ax is None:
             fig, ax = plt.subplots(1, 1, figsize=(9,5))
-        self.df.plot(x='Date', y=['Open'], ax=ax, title=f'{self.code} Price', xticks=np.arange(0, len(self.df), self.data_ticks_freq))
+        self.df.plot(x='Date', y=[self.target_value], ax=ax, title=f'{self.code} Price', xticks=np.arange(0, len(self.df), self.data_ticks_freq))
         ax.axvline(self.split_val, c='k', linestyle='--') 
         
         xlim = ax.get_xlim()
-        ax.text(round((self.split_val+xlim[0])/2), self.df['Open'].max()*0.99, s='Training Set', horizontalalignment='center')
-        ax.text(round((self.split_val+xlim[1])/2), self.df['Open'].min(), s='Test Set', horizontalalignment='center')
+        ax.text(round((self.split_val+xlim[0])/2), self.df[self.target_value].max()*0.99, s='Training Set', horizontalalignment='center')
+        ax.text(round((self.split_val+xlim[1])/2), self.df[self.target_value].min(), s='Test Set', horizontalalignment='center')
 
     def plot_results(self, ax = None):
         if ax is None:
@@ -241,20 +259,21 @@ class Price_Predictor():
 
         test_set = self.df.iloc[self.split_val:]
 
-        ax.plot(test_set['Open'].values, color = 'blue', label = 'Real Price')
+        ax.plot(test_set[self.target_value].values, color = 'blue', label = 'Real Price')
         ax.plot(self.test_predictions, color = 'red', label = 'Predicted Price')
         ax.set_title(f'{self.code} Price Prediction (Test Data)')
         ax.set_xlabel('Time')
         ax.set_ylabel('Price')
-
-        ax.set_xticks(np.arange(0, len(test_set), self.result_ticks_freq))
-        ax.set_xticklabels(test_set['Date'][np.arange(test_set.index[0], test_set.index[-1], self.result_ticks_freq)])
+        
+        ticks = np.arange(0, len(test_set), self.result_ticks_freq)
+        ax.set_xticks(ticks)
+        ax.set_xticklabels(test_set['Date'].values[ticks])
 
     def predict(self, input_sequence = None, return_info : bool = True) -> float:
         if input_sequence is None:
             if return_info:
                 print('\nWARNING: No input sequence provided, the records of the data downloaded will be used instead.\n')
-            input_sequence = self.df['Open'].values
+            input_sequence = self.df[self.target_value].values
         input_sequence = np.array(input_sequence).ravel().astype('float32')
         
         if len(input_sequence) > self.time_stamps:
@@ -316,6 +335,7 @@ class Predict_Iterator(Price_Predictor):
                  start_from_date : str = '2010-07-01', 
                  end_to_date : str = datetime.date.today().isoformat(), 
                  effort : float = 0.5, 
+                 target_value : str = 'Open',
                  time_stamps : int = 30):
 
         #the effort parameter increases the resulting performances while increasing the computational time, it is suggested to leave it as default
@@ -327,7 +347,7 @@ class Predict_Iterator(Price_Predictor):
 
         super().__init__(code = code, 
                          start_from_date = start_from_date, end_to_date = end_to_date, 
-                         time_stamps = time_stamps, 
+                         time_stamps = time_stamps, target_value = target_value,
                          training_to_test_ratio = training_to_test_ratio, 
                          n_layers = n_layers, n_epochs = n_epochs)
 
@@ -340,12 +360,12 @@ class Predict_Iterator(Price_Predictor):
             
             if end_date > start_date:
                 position = self.df['Date'].tolist().index(predict_from_date)
-                input_sequence = self.df.iloc[position-self.time_stamps:position]['Open'].values
+                input_sequence = self.df[self.target_value].values[position-self.time_stamps:position]
 
             else:
                 raise ValueError("The chosen 'predict_from_date' must be antecedent to the end date selected previously!")
         else:
-            input_sequence = self.df.iloc[self.split_val:]['Open'].values
+            input_sequence = self.df[self.target_value].values
 
         self.days_to_predict = max(1, days_to_predict)
         predictions = []
