@@ -96,8 +96,8 @@ class Price_Predictor():
                  end_to_date : str = datetime.date.today().isoformat(),
                  interval : str = 'd',
                  time_stamps : int = 30, 
-                 training_to_test_ratio : float = 0.7, 
                  target_value : str = 'Open',
+                 training_to_test_ratio : float = 0.7, 
                  n_layers : int = 4, #minimum input is 2
                  n_epochs : int = 15,
                  verbose : int = 0,
@@ -317,6 +317,7 @@ class Price_Predictor():
                   'end_to_date' : self.end_to_date, 
                   'interval' : self.interval,
                   'time_stamps' : self.time_stamps, 
+                  'target_value' : self.target_value,
                   'training_to_test_ratio' : self.training_to_test_ratio, 
                   'split_val' : self.split_val, 
                   'n_layers' : self.n_layers, 
