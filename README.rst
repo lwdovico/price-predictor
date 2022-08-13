@@ -11,11 +11,11 @@ customizable LSTM Recurrent Neural Network
    "`^DJI <https://it.finance.yahoo.com/quote/^DJI?p=^DJI>`__" or
    "`AMZN <https://it.finance.yahoo.com/quote/AMZN?p=AMZN>`__"
 
--  Download temporarily the financial data from the optionally specified
-   date (if not specified it starts from july 2010)
+-  Download temporarily the financial data from yahoo finance from the optionally 
+   specified date (if not specified it starts from july 2010)
 
--  A LSTM RNN will be trained and it will **automatically predict** the
-   next **opening price** of the instrument
+-  Then a LSTM RNN will be trained (many customization options are available) 
+   and it will **automatically predict** the next **opening price** of the instrument
 
 Installation
 ------------
