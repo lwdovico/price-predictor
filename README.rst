@@ -36,26 +36,30 @@ Write the following command from your shell:
 
 .. code:: sh
 
-    price_predictor [symbol] [--date (str)] [--ratio (float)] [--layers (int)] [--epochs (int)]
+    price_predictor [symbol] [--date (str)] [--target (str)] [--stamps (int)] [--ratio (float)] [--layers (int)] [--epochs (int)]
 
 - The **symbol** is just a short code of the financial instrument that must be available on yahoo finance
 
 The following parameters are optional:
 
 - The **date** must be provided in the ISO format, for example: 2015-01-25
-- The **ratio** is the percentage used to divide training and test set, the higher the closest to the current trends the prediction will turn out, but it may overfit (just ignore if not know how to use)
+- The **target** can be eiter 'Open', 'Close', 'Adj Close', 'High', 'Low' or 'Volume', the latter only if available, the default target is 'Open'
+- The **stamps** is an integer that identifies the time window of the training subsequences, the default value is 30 which can be seen as roughly a month (it trains to predict tomorrow's value considering the last 30 days)
+- The **ratio** is the percentage used to divide training and test set, the higher the closest to the current trends the prediction will turn out, but it may overfit (just ignore if not know how to use), the default value is 0.90
 - The **layers** are the number of layers of the LSTM, the minimum number possible will be always 2, the dafault is 4
 - The **epochs** are the number of of epochs the neural network will train, the default is 10 but it can be raised
 
-NB: Currently the training is set to be performed on 30 time_stamps, thus having close or fewer days than 30 may cause some unexpected errors
+NB: The argument can be signaled also with a single dash and its first letter (es: -d), no signal is required for the symbol. Also if default values are okay it is possible to entirely omit signaling them. It's also important to consider that having a close date to today with fewer days than the input stamps may cause unexpected errors.
 
 **Usage example:**
 
 .. code:: sh
 
-   price_predictor EURUSD=X -d 2021-09-01 -r 0.9 -l 2 -e 15
+   price_predictor EURUSD=X -d 2021-09-01 -t 'Close' -s 60 -r 0.9 -l 4 -e 50
 
-Meaning: Return tomorrow's EUR/USD opening price after training on data from the 1st of September 2021, with 90% of those data dedicated to training, the LSTM RNN will have 2 layers and the epochs of training will be 15
+Meaning: Return tomorrow's EUR/USD closing price after training on data from the 1st of September 2021, with the first 90% of those data dedicated to the training with a time window perspective of the past two months to predict a new price, the LSTM RNN will have 4 layers and the epochs of training will be 50.
+
+Finally it will also give you a plot of the training and test data prices and the resulting predictions on the test data to visually understand the accuracy of the model.
 
 Documentation
 -------------
@@ -66,18 +70,17 @@ Importing the library
 
    from price_predictor import price_predictor as pp
 
-Then you can use the same function as in the command line and a few more
+Then you can use the same function (quick_tomorrow)as in the command line and a few more
 tools
 
 You can use 2 functions to query and temporarily store the csv and another
-one which is used for the command line to get quick results (here it will 
-plot them automatically):
+one which is used for the command line to get quick results:
 
 .. code:: sh
 
    pp.yahoo_finance_csv(code, start_from_date = '2010-07-01', end_to_date = today(), interval = 'd')
    
-   pp.quick_tomorrow(code, plot = True, start_from_date, training_to_test_ratio, n_layers, n_epochs)
+   pp.quick_tomorrow(code, plot = True, start_from_date, target_value, time_stamps, training_to_test_ratio, n_layers, n_epochs)
   
 - end_to_date is the date where there must stop the download of data
 - interval can be 'd' for day, 'wk' for weeks and 'mo' for months
@@ -86,11 +89,10 @@ Then there are two classes you can work with, the basic one is:
 
 .. code:: sh
 
-   model = pp.Price_Predictor(code, start_from_date = '2010-07-01', end_to_date = today(), interval = 'd', 
-                              time_stamps = 30, training_to_test_ratio = 0.7, n_layers = 4, n_epochs = 15, verbose = 0, 
+   model = pp.Price_Predictor(code, start_from_date = '2010-07-01', end_to_date = today(), interval = 'd', time_stamps = 30,
+                              target_value = 'Open', training_to_test_ratio = 0.7, n_layers = 4, n_epochs = 15, verbose = 0, 
                               load_model = False, path_load = 'model_saved', fit_at_start = False, days_forward = 1)
    
-- time_stamps is the length of sequences to consider and use in the training
 - verbose is 0 if you do not want any training info output, 1 if you want the progress bar, 2 if you want the description of each training epoch
 - load model will load the model stored in the cwd with name = path_load
 - fit_at_start is used to avoid manually transforming the data and fitting the model with the method .fit_and_test()
@@ -135,7 +137,7 @@ Output:
    21021.205
    
 - return_info = True it will return the warnings and the final print, if False will only return 21021.205
-- input_sequence = None it will use the data downloaded, instead if an array or list is specified at least as long as the time_stamps required by the model, the prediction will be based upon that price sequence
+- input_sequence = None it will use the data downloaded, instead if an array or list is specified at least as long as the time_stamps specified within the model, the prediction will be based upon the last possible price sequence with exact length of "time_stamps"
 
 Besideds the original parameters it is also possible to access the following relevant attributes of the class in the subsequent way:
 
